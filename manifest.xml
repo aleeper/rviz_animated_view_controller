@@ -1,0 +1,21 @@
+<package>
+  <description brief="rviz_animated_view_controller">
+
+     rviz_animated_view_controller
+
+  </description>
+  <author>Adam Leeper</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rviz_animated_view_controller</url>
+  <depend package="geometry_msgs"/>
+  <depend package="std_msgs"/>
+  <depend package="roscpp"/>
+  <depend package="rviz"/>
+  <depend package="pluginlib"/>
+  <export>
+    <rviz plugin="${prefix}/plugin_description.xml"/>
+  </export>
+</package>
+
+
