@@ -1,0 +1,14 @@
+<package>
+  <description brief="rviz_animated_view_controller">
+
+     rviz_animated_view_controller
+
+  </description>
+  <author>Adam</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/rviz_animated_view_controller</url>
+
+</package>
+
+
