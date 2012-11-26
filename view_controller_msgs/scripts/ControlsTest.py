@@ -12,37 +12,36 @@ rospy.init_node("camera_test", anonymous = True)
 
 pub = rospy.Publisher("/rviz/camera_placement", CameraPlacement)
 
-rate_float = 10
+rate_float = 0.5
 rate = rospy.Rate(rate_float)
+
+cp = CameraPlacement()
 
 while not rospy.is_shutdown():
   
   #print "Top of loop!"
 
   t = rospy.get_time()
-  cp = CameraPlacement()
-  r = 10
   
-  #cp.target_frame = "rotating_frame"
   cp.target_frame = "base_link"
   
-  p = Point(r*cos(2*pi*t/10), r*sin(2*pi*t/10), 0)
-  #p = Point(5,5,0)
+  p = Point(5,5,0)
   cp.eye.point = p
   cp.eye.header.frame_id = "rotating_frame"
   
-  #f = Point(0, 0, 2*cos(2*pi*t/5))
   f = Point(0, 0, 0)
   cp.focus.point = f
   cp.focus.header.frame_id = "base_link"
 
   up = Vector3(0, 0, 1)
-  #up = Vector3(0, sin(2*pi*t/10), cos(2*pi*t/10))
   cp.up.vector = up
   cp.up.header.frame_id = "base_link"
-  #cp.up.header.frame_id = "rotating_frame"
   
-  cp.time_from_start = rospy.Duration(1.0/rate_float)  
+  cp.time_from_start = rospy.Duration(-1.0)
+  cp.mouse_interaction_mode = (cp.mouse_interaction_mode + 1)%3
+  cp.interaction_disabled = not cp.interaction_disabled
+  cp.maintain_fixed_up_axis = not cp.maintain_fixed_up_axis
+
   print "Publishing a message!"
   pub.publish(cp)
   #print "Sleeping..."

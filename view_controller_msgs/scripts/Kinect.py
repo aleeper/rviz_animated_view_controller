@@ -22,7 +22,7 @@ for i in range(3):
   t = rospy.get_time()
   cp = CameraPlacement()
  
-  cp.attached_frame = "head_mount_kinect_rgb_link"
+  cp.target_frame = "head_mount_kinect_rgb_link"
  
   p = Point(0,0, 0)
   cp.eye.point = p
