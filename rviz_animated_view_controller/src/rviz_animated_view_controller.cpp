@@ -44,6 +44,8 @@
 #include "rviz/properties/editable_enum_property.h"
 #include "rviz/properties/ros_topic_property.h"
 
+#include "view_controller_msgs/CameraPlacement.h"
+
 #include <OGRE/OgreViewport.h>
 #include <OGRE/OgreQuaternion.h>
 #include <OGRE/OgreVector3.h>
@@ -92,7 +94,7 @@ static inline void vectorOgreToMsg(const Ogre::Vector3 &o, geometry_msgs::Vector
 AnimatedViewController::AnimatedViewController()
   : nh_(""), animate_(false), dragging_( false )
 {
-  interaction_disabled_cursor_ = makeIconCursor( "package://rviz/icons/forbidden.png" );
+  interaction_disabled_cursor_ = makeIconCursor( "package://rviz/icons/forbidden.svg" );
 
   mouse_enabled_property_ = new BoolProperty("Mouse Enabled", true,
                                    "Enables mouse control of the camera.",
@@ -128,9 +130,9 @@ AnimatedViewController::AnimatedViewController()
                                                           QString::fromStdString(ros::message_traits::datatype<view_controller_msgs::CameraPlacement>() ),
                                                           "Topic for CameraPlacement messages", this, SLOT(updateTopics()));
 
-  camera_placement_trajectory_topic_property_ = new RosTopicProperty("Trajectory Topic", "/rviz/camera_placement_trajectory",
-                                                          QString::fromStdString(ros::message_traits::datatype<view_controller_msgs::CameraPlacementTrajectory>() ),
-                                                          "Topic for CameraPlacementTrajectory messages", this, SLOT(updateTopics()));
+//  camera_placement_trajectory_topic_property_ = new RosTopicProperty("Trajectory Topic", "/rviz/camera_placement_trajectory",
+//                                                          QString::fromStdString(ros::message_traits::datatype<view_controller_msgs::CameraPlacementTrajectory>() ),
+//                                                          "Topic for CameraPlacementTrajectory messages", this, SLOT(updateTopics()));
 }
 
 AnimatedViewController::~AnimatedViewController()
@@ -141,9 +143,9 @@ AnimatedViewController::~AnimatedViewController()
 
 void AnimatedViewController::updateTopics()
 {
-  trajectory_subscriber_ = nh_.subscribe<view_controller_msgs::CameraPlacementTrajectory>
-                              (camera_placement_trajectory_topic_property_->getStdString(), 1,
-                              boost::bind(&AnimatedViewController::cameraPlacementTrajectoryCallback, this, _1));
+//  trajectory_subscriber_ = nh_.subscribe<view_controller_msgs::CameraPlacementTrajectory>
+//                              (camera_placement_trajectory_topic_property_->getStdString(), 1,
+//                              boost::bind(&AnimatedViewController::cameraPlacementTrajectoryCallback, this, _1));
   placement_subscriber_  = nh_.subscribe<view_controller_msgs::CameraPlacement>
                               (camera_placement_topic_property_->getStdString(), 1,
                               boost::bind(&AnimatedViewController::cameraPlacementCallback, this, _1));
@@ -539,53 +541,72 @@ void AnimatedViewController::cameraPlacementCallback(const CameraPlacementConstP
 {
   CameraPlacement cp = *cp_ptr;
 
-  if(cp.attached_frame != "")
-  {
-    attached_frame_property_->setStdString(cp.attached_frame);
-    updateAttachedFrame();
-  }
-
-  ROS_DEBUG_STREAM("Received a camera placement request! \n" << cp);
-  transformCameraPlacementToAttachedFrame(cp);
-  ROS_DEBUG_STREAM("After transform, we have \n" << cp);
-
-  Ogre::Vector3 eye = vectorFromMsg(cp.eye.point); 
-  Ogre::Vector3 focus = vectorFromMsg(cp.focus.point); 
-  Ogre::Vector3 up = vectorFromMsg(cp.up.vector); 
-
-  beginNewTransition(eye, focus, up, cp.time_from_start);
-}
-
-void AnimatedViewController::cameraPlacementTrajectoryCallback(const CameraPlacementTrajectoryConstPtr &cptptr)
-{
-  CameraPlacementTrajectory cpt = *cptptr;
-  ROS_DEBUG_STREAM("Received a camera placement trajectory request! \n" << cpt);
-  
   // Handle control parameters
-  mouse_enabled_property_->setBool( cpt.interaction_enabled );
-  fixed_up_property_->setBool( cpt.maintain_fixed_up_axis );
-  if(cpt.mouse_interaction_mode != cpt.NO_CHANGE)
+  mouse_enabled_property_->setBool( !cp.interaction_disabled );
+  fixed_up_property_->setBool( cp.maintain_fixed_up_axis );
+  if(cp.mouse_interaction_mode != cp.NO_CHANGE)
   {
     std::string name = "";
-    if(cpt.mouse_interaction_mode == cpt.ORBIT) name = MODE_ORBIT;
-    else if(cpt.mouse_interaction_mode == cpt.FPS) name = MODE_FPS;
+    if(cp.mouse_interaction_mode == cp.ORBIT) name = MODE_ORBIT;
+    else if(cp.mouse_interaction_mode == cp.FPS) name = MODE_FPS;
     interaction_mode_property_->setStdString(name);
   }
 
-  // TODO should transform the interpolated positions (later), or transform info will only reflect the TF tree state at the beginning...
-  for(size_t i = 0; i<cpt.placements.size(); i++)
+  if(cp.target_frame != "")
   {
-    transformCameraPlacementToAttachedFrame(cpt.placements[i]);
+    attached_frame_property_->setStdString(cp.target_frame);
+    updateAttachedFrame();
   }
 
-  // For now, just transition to the first placement until we put in the capacity for a trajectory
-  CameraPlacement cp = cpt.placements[0];
-  Ogre::Vector3 eye = vectorFromMsg(cp.eye.point); 
-  Ogre::Vector3 focus = vectorFromMsg(cp.focus.point); 
-  Ogre::Vector3 up = vectorFromMsg(cp.up.vector); 
+  if(cp.time_from_start.toSec() >= 0)
+  {
+    ROS_DEBUG_STREAM("Received a camera placement request! \n" << cp);
+    transformCameraPlacementToAttachedFrame(cp);
+    ROS_DEBUG_STREAM("After transform, we have \n" << cp);
 
-  beginNewTransition(eye, focus, up, cp.time_from_start);
+    Ogre::Vector3 eye = vectorFromMsg(cp.eye.point);
+    Ogre::Vector3 focus = vectorFromMsg(cp.focus.point);
+    Ogre::Vector3 up = vectorFromMsg(cp.up.vector);
+
+    beginNewTransition(eye, focus, up, cp.time_from_start);
+  }
 }
+
+//void AnimatedViewController::cameraPlacementTrajectoryCallback(const CameraPlacementTrajectoryConstPtr &cptptr)
+//{
+//  CameraPlacementTrajectory cpt = *cptptr;
+//  ROS_DEBUG_STREAM("Received a camera placement trajectory request! \n" << cpt);
+  
+//  // Handle control parameters
+//  mouse_enabled_property_->setBool( cpt.interaction_enabled );
+//  fixed_up_property_->setBool( cpt.maintain_fixed_up_axis );
+//  if(cpt.mouse_interaction_mode != cpt.NO_CHANGE)
+//  {
+//    std::string name = "";
+//    if(cpt.mouse_interaction_mode == cpt.ORBIT) name = MODE_ORBIT;
+//    else if(cpt.mouse_interaction_mode == cpt.FPS) name = MODE_FPS;
+//    interaction_mode_property_->setStdString(name);
+//  }
+
+//  // TODO should transform the interpolated positions (later), or transform info will only reflect the TF tree state at the beginning...
+//  for(size_t i = 0; i<cpt.placements.size(); i++)
+//  {
+//    transformCameraPlacementToAttachedFrame(cpt.placements[i]);
+//  }
+
+//  // For now, just transition to the first placement until we put in the capacity for a trajectory
+//  CameraPlacement cp = cpt.placements[0];
+//  if(cp.target_frame != "")
+//  {
+//    attached_frame_property_->setStdString(cp.target_frame);
+//    updateAttachedFrame();
+//  }
+//  Ogre::Vector3 eye = vectorFromMsg(cp.eye.point);
+//  Ogre::Vector3 focus = vectorFromMsg(cp.focus.point);
+//  Ogre::Vector3 up = vectorFromMsg(cp.up.vector);
+
+//  beginNewTransition(eye, focus, up, cp.time_from_start);
+//}
 
 void AnimatedViewController::transformCameraPlacementToAttachedFrame(CameraPlacement &cp)
 {

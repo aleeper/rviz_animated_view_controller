@@ -37,7 +37,7 @@
 #include <ros/subscriber.h>
 #include <ros/ros.h>
 
-#include "view_controller_msgs/CameraPlacementTrajectory.h"
+#include "view_controller_msgs/CameraPlacement.h"
 
 #include <OGRE/OgreVector3.h>
 #include <OGRE/OgreQuaternion.h>
@@ -169,7 +169,7 @@ protected:  //methods
   void updateAttachedSceneNode();
 
   void cameraPlacementCallback(const view_controller_msgs::CameraPlacementConstPtr &cp_ptr);
-  void cameraPlacementTrajectoryCallback(const view_controller_msgs::CameraPlacementTrajectoryConstPtr &cptptr);
+  //void cameraPlacementTrajectoryCallback(const view_controller_msgs::CameraPlacementTrajectoryConstPtr &cptptr);
   void transformCameraPlacementToAttachedFrame(view_controller_msgs::CameraPlacement &cp);
 
   //void setUpVectorPropertyModeDependent( const Ogre::Vector3 &vector );
@@ -212,7 +212,7 @@ protected:    //members
   rviz::FloatProperty* default_transition_time_property_; ///< A default time for any animation requests.
 
   rviz::RosTopicProperty* camera_placement_topic_property_;
-  rviz::RosTopicProperty* camera_placement_trajectory_topic_property_;
+//  rviz::RosTopicProperty* camera_placement_trajectory_topic_property_;
 
   rviz::TfFrameProperty* attached_frame_property_;
   Ogre::SceneNode* attached_scene_node_;
@@ -234,7 +234,7 @@ protected:    //members
 
   QCursor interaction_disabled_cursor_;         ///< A cursor for indicating mouse interaction is disabled.
   
-  ros::Subscriber trajectory_subscriber_;
+//  ros::Subscriber trajectory_subscriber_;
   ros::Subscriber placement_subscriber_;
 
 };
