@@ -5,7 +5,7 @@ time start_time
 # The vector of camera placements
 # An empty vector can be sent if this message is being used to
 # just send changes to the control parameters.
-rviz_animated_view_controller/CameraPlacement[] placements
+view_controller_msgs/CameraPlacement[] placements
 
 # The interaction style that should be activated when movement is done.
 uint8 mouse_interaction_mode

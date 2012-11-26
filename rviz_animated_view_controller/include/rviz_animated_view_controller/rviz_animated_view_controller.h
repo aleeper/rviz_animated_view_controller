@@ -29,34 +29,36 @@
  * Author: Adam Leeper
  */
 
-#ifndef RVIZ_FREE_VIEW_CONTROLLER_H
-#define RVIZ_FREE_VIEW_CONTROLLER_H
+#ifndef RVIZ_ANIMATED_VIEW_CONTROLLER_H
+#define RVIZ_ANIMATED_VIEW_CONTROLLER_H
 
-#include "rviz_animated_view_controller/CameraPlacementTrajectory.h"
 #include "rviz/view_controller.h"
-
 
 #include <ros/subscriber.h>
 #include <ros/ros.h>
 
+#include "view_controller_msgs/CameraPlacementTrajectory.h"
+
 #include <OGRE/OgreVector3.h>
 #include <OGRE/OgreQuaternion.h>
 
-namespace rviz
+namespace rviz {
+  class SceneNode;
+  class Shape;
+  class BoolProperty;
+  class FloatProperty;
+  class VectorProperty;
+  class QuaternionProperty;
+  class TfFrameProperty;
+  class EditableEnumProperty;
+  class RosTopicProperty;
+}
+
+namespace rviz_animated_view_controller
 {
 
-class SceneNode;
-class Shape;
-class BoolProperty;
-class FloatProperty;
-class VectorProperty;
-class QuaternionProperty;
-class TfFrameProperty;
-class EditableEnumProperty;
-class RosTopicProperty;
-
 /** @brief An un-constrained "flying" camera, specified by an eye point, focus point, and up vector. */
-class AnimatedViewController : public ViewController
+class AnimatedViewController : public rviz::ViewController
 {
 Q_OBJECT
 public:
@@ -91,7 +93,7 @@ public:
   void yaw_pitch_roll( float yaw, float pitch, float roll );
 
 
-  virtual void handleMouseEvent(ViewportMouseEvent& evt);
+  virtual void handleMouseEvent(rviz::ViewportMouseEvent& evt);
 
 
   /** @brief Calls beginNewTransition() to
@@ -133,17 +135,29 @@ protected Q_SLOTS:
    * onTargetFrameChanged(). */
   virtual void updateAttachedFrame();
   
+  /** @brief Called when distance property is changed; computes new eye position. */
   virtual void onDistancePropertyChanged();
-  
+
+  /** @brief Called focus property is changed; computes new distance. */
   virtual void onFocusPropertyChanged();
   
+  /** @brief Called when eye property is changed; computes new distance. */
   virtual void onEyePropertyChanged();
+
+  /** @brief Called when up vector property is changed (does nothing for now...). */
+  virtual void onUpPropertyChanged();
 
 protected:  //methods
 
   /** @brief Called at 30Hz by ViewManager::update() while this view
    * is active. Override with code that needs to run repeatedly. */
   virtual void update(float dt, float ros_dt);
+
+  /** @brief Convenience function; connects the signals/slots for position properties. */
+  void connectPositionProperties();
+
+  /** @brief Convenience function; disconnects the signals/slots for position properties. */
+  void disconnectPositionProperties();
 
   /** @brief Override to implement the change in properties which
    * nullifies the change in attached frame.
@@ -154,9 +168,11 @@ protected:  //methods
    * frame specified in the Attached Frame property. */
   void updateAttachedSceneNode();
 
-  void cameraPlacementCallback(const rviz_animated_view_controller::CameraPlacementConstPtr &cp_ptr);
-  void cameraPlacementTrajectoryCallback(const rviz_animated_view_controller::CameraPlacementTrajectoryConstPtr &cptptr);
-  void transformCameraPlacementToAttachedFrame(rviz_animated_view_controller::CameraPlacement &cp);
+  void cameraPlacementCallback(const view_controller_msgs::CameraPlacementConstPtr &cp_ptr);
+  void cameraPlacementTrajectoryCallback(const view_controller_msgs::CameraPlacementTrajectoryConstPtr &cptptr);
+  void transformCameraPlacementToAttachedFrame(view_controller_msgs::CameraPlacement &cp);
+
+  //void setUpVectorPropertyModeDependent( const Ogre::Vector3 &vector );
 
   void setPropertiesFromCamera( Ogre::Camera* source_camera );
 
@@ -185,20 +201,20 @@ protected:    //members
 
   ros::NodeHandle nh_;
 
-  BoolProperty* mouse_enabled_property_;            ///< If True, most user changes to camera state are disabled.
-  EditableEnumProperty* interaction_mode_property_; ///< Select between Orbit or FPS control style.
-  BoolProperty* fixed_up_property_;                 ///< If True, "up" is fixed to ... up.
+  rviz::BoolProperty* mouse_enabled_property_;            ///< If True, most user changes to camera state are disabled.
+  rviz::EditableEnumProperty* interaction_mode_property_; ///< Select between Orbit or FPS control style.
+  rviz::BoolProperty* fixed_up_property_;                 ///< If True, "up" is fixed to ... up.
 
-  FloatProperty* distance_property_;                ///< The camera's distance from the focal point
-  VectorProperty* eye_point_property_;              ///< The position of the camera.
-  VectorProperty* focus_point_property_;            ///< The point around which the camera "orbits".
-  VectorProperty* up_vector_property_;              ///< The up vector for the camera.
-  FloatProperty* default_transition_time_property_; ///< A default time for any animation requests.
+  rviz::FloatProperty* distance_property_;                ///< The camera's distance from the focal point
+  rviz::VectorProperty* eye_point_property_;              ///< The position of the camera.
+  rviz::VectorProperty* focus_point_property_;            ///< The point around which the camera "orbits".
+  rviz::VectorProperty* up_vector_property_;              ///< The up vector for the camera.
+  rviz::FloatProperty* default_transition_time_property_; ///< A default time for any animation requests.
 
-  RosTopicProperty* camera_placement_topic_property_;
-  RosTopicProperty* camera_placement_trajectory_topic_property_;
+  rviz::RosTopicProperty* camera_placement_topic_property_;
+  rviz::RosTopicProperty* camera_placement_trajectory_topic_property_;
 
-  TfFrameProperty* attached_frame_property_;
+  rviz::TfFrameProperty* attached_frame_property_;
   Ogre::SceneNode* attached_scene_node_;
 
   Ogre::Quaternion reference_orientation_;    ///< Used to store the orientation of the attached frame relative to <Fixed Frame>
@@ -213,7 +229,7 @@ protected:    //members
   ros::Time transition_start_time_;
   ros::Duration current_transition_duration_;
 
-  Shape* focal_shape_;    ///< A small ellipsoid to show the focus point.
+  rviz::Shape* focal_shape_;    ///< A small ellipsoid to show the focus point.
   bool dragging_;         ///< A flag indicating the dragging state of the mouse.
 
   QCursor interaction_disabled_cursor_;         ///< A cursor for indicating mouse interaction is disabled.

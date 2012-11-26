@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import roslib
-roslib.load_manifest("rviz_view_controllers")
+roslib.load_manifest("view_controller_msgs")
 
 import rospy
 from math import *
-from rviz_view_controllers.msg import CameraPlacement
+from view_controller_msgs.msg import CameraPlacement
 from geometry_msgs.msg import Point, Vector3
 
 rospy.init_node("camera_test", anonymous = True)
@@ -23,6 +23,7 @@ while not rospy.is_shutdown():
   cp = CameraPlacement()
   r = 10
   
+  #cp.attached_frame = "rotating_frame"
   cp.attached_frame = "base_link"
   
   p = Point(r*cos(2*pi*t/10), r*sin(2*pi*t/10), 0)
@@ -36,10 +37,12 @@ while not rospy.is_shutdown():
   cp.focus.header.frame_id = "base_link"
 
   up = Vector3(0, 0, 1)
+  #up = Vector3(0, sin(2*pi*t/10), cos(2*pi*t/10))
   cp.up.vector = up
   cp.up.header.frame_id = "base_link"
+  #cp.up.header.frame_id = "rotating_frame"
   
-  cp.time_from_start = rospy.Duration(1.2/rate_float)  
+  cp.time_from_start = rospy.Duration(1.0/rate_float)  
   print "Publishing a message!"
   pub.publish(cp)
   #print "Sleeping..."

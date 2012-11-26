@@ -8,7 +8,12 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/rviz_animated_view_controller</url>
-
+  <depend package="view_controller_msgs"/>
+  <depend package="rviz"/>
+  <depend package="pluginlib"/>
+  <export>
+    <rviz plugin="${prefix}/plugin_description.xml"/>
+  </export>
 </package>
 
 

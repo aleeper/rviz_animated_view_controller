@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import roslib
-roslib.load_manifest("rviz_view_controllers")
+roslib.load_manifest("view_controller_msgs")
 
 import rospy
 from math import *
-from rviz_view_controllers.msg import CameraPlacement
+from view_controller_msgs.msg import CameraPlacement
 from geometry_msgs.msg import Point, Vector3
 
 rospy.init_node("camera_test", anonymous = True)
