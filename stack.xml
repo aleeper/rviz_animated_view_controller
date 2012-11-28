@@ -1,5 +1,5 @@
 <stack>
-  <description brief="A rviz view controller featuring smooth transitions.">
+  <description brief="A view controller featuring smooth transitions.">
     This package contains a view controller for rviz that can be
     commanded trhough a message API, and which interpolates its position
     between set points.
