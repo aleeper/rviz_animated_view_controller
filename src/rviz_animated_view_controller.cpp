@@ -543,7 +543,7 @@ void AnimatedViewController::cameraPlacementCallback(const CameraPlacementConstP
 
   // Handle control parameters
   mouse_enabled_property_->setBool( !cp.interaction_disabled );
-  fixed_up_property_->setBool( cp.maintain_fixed_up_axis );
+  fixed_up_property_->setBool( !cp.allow_free_yaw_axis );
   if(cp.mouse_interaction_mode != cp.NO_CHANGE)
   {
     std::string name = "";
@@ -579,7 +579,7 @@ void AnimatedViewController::cameraPlacementCallback(const CameraPlacementConstP
   
 //  // Handle control parameters
 //  mouse_enabled_property_->setBool( cpt.interaction_enabled );
-//  fixed_up_property_->setBool( cpt.maintain_fixed_up_axis );
+//  fixed_up_property_->setBool( !cpt.allow_free_yaw_axis );
 //  if(cpt.mouse_interaction_mode != cpt.NO_CHANGE)
 //  {
 //    std::string name = "";
