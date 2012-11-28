@@ -1,4 +1,4 @@
-<package>
+<stack>
   <description brief="Messages for (camera) view controllers">
      view_controller_msgs is intended to contain common messages
      that can be used to issue commands to a view controller in a
@@ -8,15 +8,8 @@
      Groovy release cycle.
   </description>
   <author>Adam Leeper</author>
-  <license>BSD</license>
-  <review status="unreviewed" notes=""/>
+  <license>BSD</license>  
+
   <url>http://ros.org/wiki/view_controller_msgs</url>
-  <depend package="geometry_msgs"/>
-  <depend package="std_msgs"/>
-  
-  <export>
-    <cpp cflags="-I${prefix}/include"/>
-  </export>
-</package>
-
-
+  <depend stack="ros" /> <!-- for rosmake -->
+</stack>
